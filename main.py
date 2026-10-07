@@ -35,9 +35,12 @@ def ask(data: Question):
             "Content-Type": "application/json"
         },
         json={
-            "model": "meta-llama/Llama-3.2-3B-Instruct",
+            "model": "google/gemma-2-2b-it",
             "messages": [
-                {"role": "user", "content": data.question}
+                {
+                    "role": "user",
+                    "content": data.question
+                }
             ],
             "max_tokens": 300
         },
@@ -45,7 +48,12 @@ def ask(data: Question):
     )
 
     if response.status_code != 200:
-        return {"answer": "AI request failed: " + response.text}
+        return {
+            "answer": "AI request failed: " + response.text
+        }
 
     result = response.json()
-    return {"answer": result["choices"][0]["message"]["content"]}
+
+    return {
+        "answer": result["choices"][0]["message"]["content"]
+    }
