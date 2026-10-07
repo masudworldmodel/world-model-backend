@@ -21,7 +21,9 @@ class Question(BaseModel):
 
 @app.get("/")
 def home():
-    return {"status": "World Model backend is running"}
+    return {
+        "status": "World Model backend is running"
+    }
 
 
 @app.post("/ask")
@@ -33,32 +35,38 @@ def ask(data: Question):
             "answer": "HF_TOKEN is not configured."
         }
 
-    response = requests.post(
-        "https://router.huggingface.co/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "openai/gpt-oss-120b:fastest",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": data.question
-                }
-            ],
-            "max_tokens": 300
-        },
-        timeout=60
-    )
+    try:
+        response = requests.post(
+            "https://router.huggingface.co/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "openai/gpt-oss-120b:fastest",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": data.question
+                    }
+                ],
+                "max_tokens": 300
+            },
+            timeout=60
+        )
 
-    if response.status_code != 200:
+        if response.status_code != 200:
+            return {
+                "answer": "AI request failed: " + response.text
+            }
+
+        result = response.json()
+
         return {
-            "answer": "AI request failed: " + response.text
+            "answer": result["choices"][0]["message"]["content"]
         }
 
-    result = response.json()
-
-    return {
-        "answer": result["choices"][0]["message"]["content"]
-    }
+    except Exception as e:
+        return {
+            "answer": "Backend error: " + str(e)
+        }
