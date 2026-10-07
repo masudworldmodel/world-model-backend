@@ -1,10 +1,13 @@
 import os
 import requests
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
+
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +31,7 @@ def home():
 
 @app.post("/ask")
 def ask(data: Question):
+
     token = os.environ.get("HF_TOKEN")
 
     if not token:
@@ -36,12 +40,15 @@ def ask(data: Question):
         }
 
     try:
+
         response = requests.post(
             "https://router.huggingface.co/v1/chat/completions",
+
             headers={
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"
             },
+
             json={
                 "model": "openai/gpt-oss-120b:fastest",
                 "messages": [
@@ -52,6 +59,7 @@ def ask(data: Question):
                 ],
                 "max_tokens": 300
             },
+
             timeout=60
         )
 
@@ -67,6 +75,7 @@ def ask(data: Question):
         }
 
     except Exception as e:
+
         return {
             "answer": "Backend error: " + str(e)
         }
