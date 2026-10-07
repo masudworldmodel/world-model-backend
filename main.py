@@ -14,19 +14,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class Question(BaseModel):
     question: str
+
 
 @app.get("/")
 def home():
     return {"status": "World Model backend is running"}
+
 
 @app.post("/ask")
 def ask(data: Question):
     token = os.environ.get("HF_TOKEN")
 
     if not token:
-        return {"answer": "HF_TOKEN is not configured."}
+        return {
+            "answer": "HF_TOKEN is not configured."
+        }
 
     response = requests.post(
         "https://router.huggingface.co/v1/chat/completions",
@@ -35,7 +40,7 @@ def ask(data: Question):
             "Content-Type": "application/json"
         },
         json={
-            "model": "google/gemma-2-2b-it",
+            "model": "openai/gpt-oss-120b:fastest",
             "messages": [
                 {
                     "role": "user",
